@@ -11,9 +11,9 @@ namespace MatchService.Models
 
     public class UserProfile
     {
-        public int Id { get; set; }
+        public int? Id { get; set; }
         public string Name { get; set; } = string.Empty;
-        public int Age { get; set; }
+        public int? Age { get; set; }
         public string Bio { get; set; } = string.Empty;
         public string Location { get; set; } = string.Empty;
         public string Gender { get; set; } = string.Empty;
@@ -23,8 +23,8 @@ namespace MatchService.Models
 
     public class SwipeRequest
     {
-        public int UserId { get; set; }
-        public int TargetUserId { get; set; }
-        public bool IsLike { get; set; }
+        public int? UserId { get; set; }
+        public int? TargetUserId { get; set; }
+        public bool? IsLike { get; set; }
     }
 }

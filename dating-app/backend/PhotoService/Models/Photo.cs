@@ -12,7 +12,7 @@ namespace PhotoService.Models
     public class UploadPhotoRequest
     {
         public string UserId { get; set; } = string.Empty;
-        public IFormFile File { get; set; }
-        public bool IsMain { get; set; }
+        public required IFormFile File { get; set; }
+        public bool? IsMain { get; set; }
     }
 }

@@ -10,6 +10,11 @@ namespace PhotoService.Controllers
         private static List<Photo> _photos = new List<Photo>();
         private static int _nextId = 1;
 
+        private static int GetNextId()
+        {
+            return _nextId++;
+        }
+
         [HttpPost("upload")]
         public async Task<ActionResult<Photo>> UploadPhoto([FromForm] UploadPhotoRequest request)
         {
@@ -31,10 +36,10 @@ namespace PhotoService.Controllers
 
             var photo = new Photo
             {
-                Id = _nextId++,
+                Id = GetNextId(),
                 UserId = request.UserId,
                 Url = $"/uploads/{fileName}",
-                IsMain = request.IsMain
+                IsMain = request.IsMain ?? false
             };
 
             _photos.Add(photo);

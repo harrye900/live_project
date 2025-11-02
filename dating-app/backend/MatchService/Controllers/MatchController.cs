@@ -12,25 +12,37 @@ namespace MatchService.Controllers
         private static Dictionary<int, List<int>> _likes = new Dictionary<int, List<int>>();
         private static int _nextId = 1;
 
+        private static int GetNextId()
+        {
+            return _nextId++;
+        }
+
         [HttpPost("swipe")]
         public ActionResult<object> Swipe(SwipeRequest request)
         {
-            if (!_likes.ContainsKey(request.UserId))
-                _likes[request.UserId] = new List<int>();
+            if (!request.UserId.HasValue || !request.TargetUserId.HasValue || !request.IsLike.HasValue)
+                return BadRequest("Invalid request data");
 
-            if (request.IsLike)
+            var userId = request.UserId.Value;
+            var targetUserId = request.TargetUserId.Value;
+            var isLike = request.IsLike.Value;
+
+            if (!_likes.ContainsKey(userId))
+                _likes[userId] = new List<int>();
+
+            if (isLike)
             {
-                _likes[request.UserId].Add(request.TargetUserId);
+                _likes[userId].Add(targetUserId);
 
                 // Check if target user also liked this user
-                if (_likes.ContainsKey(request.TargetUserId) && 
-                    _likes[request.TargetUserId].Contains(request.UserId))
+                if (_likes.ContainsKey(targetUserId) && 
+                    _likes[targetUserId].Contains(userId))
                 {
                     var match = new Match
                     {
-                        Id = _nextId++,
-                        UserId1 = request.UserId,
-                        UserId2 = request.TargetUserId
+                        Id = GetNextId(),
+                        UserId1 = userId,
+                        UserId2 = targetUserId
                     };
                     _matches.Add(match);
                     return Ok(new { IsMatch = true, Match = match });
@@ -81,8 +93,13 @@ namespace MatchService.Controllers
         [HttpPost("sync-users")]
         public IActionResult SyncUsers(List<UserProfile> users)
         {
-            _users = users;
+            SetUsers(users);
             return Ok();
+        }
+
+        private static void SetUsers(List<UserProfile> users)
+        {
+            _users = users;
         }
     }
 }
