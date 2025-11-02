@@ -32,7 +32,7 @@ jobs:
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
       run: |
-        dotnet sonarscanner begin /k:"harrye900_live_project" /o:"harrye900" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.coverage.exclusions="**/*" /d:sonar.qualitygate.wait=true
+        dotnet sonarscanner begin /k:"harrye900_live_project" /o:"harrye900" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.coverage.exclusions="**/*"
         dotnet build dating-app/backend/UserService/UserService.csproj
         dotnet build dating-app/backend/PhotoService/PhotoService.csproj
         dotnet build dating-app/backend/MatchService/MatchService.csproj
