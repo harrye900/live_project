@@ -12,6 +12,27 @@ jobs:
     
     steps:
     - uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
+      with:
+        dotnet-version: '8.0.x'
+    
+    - name: Install SonarScanner
+      run: dotnet tool install --global dotnet-sonarscanner
+    
+    - name: SonarQube Analysis
+      env:
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        SONAR_HOST_URL: ${{ secrets.SONAR_HOST_URL }}
+      run: |
+        dotnet sonarscanner begin /k:"dating-app" /d:sonar.host.url="${SONAR_HOST_URL}" /d:sonar.login="${SONAR_TOKEN}"
+        dotnet build dating-app/backend/UserService/UserService.csproj
+        dotnet build dating-app/backend/PhotoService/PhotoService.csproj
+        dotnet build dating-app/backend/MatchService/MatchService.csproj
+        dotnet sonarscanner end /d:sonar.login="${SONAR_TOKEN}"
     
     - name: Debug secrets
       run: |
