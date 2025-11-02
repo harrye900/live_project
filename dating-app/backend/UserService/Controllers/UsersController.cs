@@ -26,18 +26,26 @@ namespace UserService.Controllers
         [HttpPost]
         public ActionResult<User> CreateUser(CreateUserRequest request)
         {
+            // Input validation
+            if (string.IsNullOrWhiteSpace(request.Email) || !request.Email.Contains("@"))
+                return BadRequest("Valid email is required");
+            if (string.IsNullOrWhiteSpace(request.Password) || request.Password.Length < 6)
+                return BadRequest("Password must be at least 6 characters");
+            if (string.IsNullOrWhiteSpace(request.Name))
+                return BadRequest("Name is required");
+
             var user = new User
             {
                 Id = Guid.NewGuid().ToString(),
-                Email = request.Email,
+                Email = request.Email.Trim(),
                 Password = request.Password,
-                Name = request.Name,
+                Name = request.Name.Trim(),
                 Age = request.Age ?? 0,
-                Bio = request.Bio,
-                Location = request.Location,
-                Zipcode = request.Zipcode,
-                Gender = request.Gender,
-                InterestedIn = request.InterestedIn
+                Bio = request.Bio?.Trim() ?? string.Empty,
+                Location = request.Location?.Trim() ?? string.Empty,
+                Zipcode = request.Zipcode?.Trim() ?? string.Empty,
+                Gender = request.Gender?.Trim() ?? string.Empty,
+                InterestedIn = request.InterestedIn?.Trim() ?? string.Empty
             };
 
             _users.Add(user);
@@ -62,7 +70,11 @@ namespace UserService.Controllers
         [HttpPost("login")]
         public IActionResult Login(LoginRequest request)
         {
-            var user = _users.FirstOrDefault(u => u.Email == request.Email && u.Password == request.Password);
+            // Input validation
+            if (string.IsNullOrWhiteSpace(request.Email) || string.IsNullOrWhiteSpace(request.Password))
+                return BadRequest("Email and password are required");
+
+            var user = _users.FirstOrDefault(u => u.Email.Equals(request.Email.Trim(), StringComparison.OrdinalIgnoreCase) && u.Password == request.Password);
             if (user == null)
                 return Unauthorized(new { message = "Invalid email or password" });
 
@@ -72,6 +84,11 @@ namespace UserService.Controllers
         [HttpPost("{id}/photos")]
         public IActionResult AddPhoto(string id, [FromBody] string photoUrl)
         {
+            if (string.IsNullOrWhiteSpace(id))
+                return BadRequest("User ID is required");
+            if (string.IsNullOrWhiteSpace(photoUrl))
+                return BadRequest("Photo URL is required");
+
             var user = _users.FirstOrDefault(u => u.Id == id);
             if (user == null)
                 return NotFound();

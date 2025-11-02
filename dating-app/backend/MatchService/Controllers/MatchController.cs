@@ -22,6 +22,10 @@ namespace MatchService.Controllers
         {
             if (!request.UserId.HasValue || !request.TargetUserId.HasValue || !request.IsLike.HasValue)
                 return BadRequest("Invalid request data");
+            if (request.UserId.Value <= 0 || request.TargetUserId.Value <= 0)
+                return BadRequest("Invalid user IDs");
+            if (request.UserId.Value == request.TargetUserId.Value)
+                return BadRequest("Cannot swipe on yourself");
 
             var userId = request.UserId.Value;
             var targetUserId = request.TargetUserId.Value;

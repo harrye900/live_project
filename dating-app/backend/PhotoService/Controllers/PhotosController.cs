@@ -21,6 +21,15 @@ namespace PhotoService.Controllers
             if (request.File == null || request.File.Length == 0)
                 return BadRequest("No file uploaded");
 
+            // File validation
+            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+            var fileExtension = Path.GetExtension(request.File.FileName).ToLowerInvariant();
+            if (!allowedExtensions.Contains(fileExtension))
+                return BadRequest("Invalid file type. Only images are allowed.");
+
+            if (request.File.Length > 5 * 1024 * 1024) // 5MB limit
+                return BadRequest("File size exceeds 5MB limit.");
+
             var fileName = $"{Guid.NewGuid()}_{request.File.FileName}";
             var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
             
@@ -64,6 +73,9 @@ namespace PhotoService.Controllers
         [HttpDelete("{id}")]
         public IActionResult DeletePhoto(int id)
         {
+            if (id <= 0)
+                return BadRequest("Invalid photo ID");
+
             var photo = _photos.FirstOrDefault(p => p.Id == id);
             if (photo == null)
                 return NotFound();
