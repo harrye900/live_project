@@ -8,7 +8,7 @@ namespace UserService.Tests
     public class UsersControllerTests
     {
         [Fact]
-        public void Register_ValidUser_ReturnsCreatedResult()
+        public void CreateUser_ValidUser_ReturnsCreatedResult()
         {
             var controller = new UsersController();
             var request = new CreateUserRequest
@@ -19,7 +19,7 @@ namespace UserService.Tests
                 Age = 25
             };
 
-            var result = controller.Register(request);
+            var result = controller.CreateUser(request);
 
             var createdResult = Assert.IsType<CreatedAtActionResult>(result.Result);
             var user = Assert.IsType<User>(createdResult.Value);
@@ -30,7 +30,7 @@ namespace UserService.Tests
         public void Login_ValidCredentials_ReturnsOkResult()
         {
             var controller = new UsersController();
-            controller.Register(new CreateUserRequest
+            controller.CreateUser(new CreateUserRequest
             {
                 Email = "test@example.com",
                 Password = "password123",
@@ -45,7 +45,7 @@ namespace UserService.Tests
 
             var result = controller.Login(loginRequest);
 
-            Assert.IsType<OkObjectResult>(result.Result);
+            Assert.IsType<OkObjectResult>(result);
         }
 
         [Fact]
@@ -60,7 +60,7 @@ namespace UserService.Tests
 
             var result = controller.Login(loginRequest);
 
-            Assert.IsType<UnauthorizedResult>(result.Result);
+            Assert.IsType<UnauthorizedObjectResult>(result);
         }
     }
 }
