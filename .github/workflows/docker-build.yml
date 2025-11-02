@@ -39,9 +39,10 @@ jobs:
         dotnet build dating-app/backend/UserService.Tests/UserService.Tests.csproj
         dotnet build dating-app/backend/PhotoService.Tests/PhotoService.Tests.csproj
         dotnet build dating-app/backend/MatchService.Tests/MatchService.Tests.csproj
-        dotnet test dating-app/backend/UserService.Tests/UserService.Tests.csproj --collect:"XPlat Code Coverage" --results-directory ./coverage --logger trx --no-restore
-        dotnet test dating-app/backend/PhotoService.Tests/PhotoService.Tests.csproj --collect:"XPlat Code Coverage" --results-directory ./coverage --logger trx --no-restore
-        dotnet test dating-app/backend/MatchService.Tests/MatchService.Tests.csproj --collect:"XPlat Code Coverage" --results-directory ./coverage --logger trx --no-restore
+        dotnet test dating-app/backend/UserService.Tests/UserService.Tests.csproj --collect:"XPlat Code Coverage" --results-directory ./TestResults --logger trx --no-restore -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+        dotnet test dating-app/backend/PhotoService.Tests/PhotoService.Tests.csproj --collect:"XPlat Code Coverage" --results-directory ./TestResults --logger trx --no-restore -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+        dotnet test dating-app/backend/MatchService.Tests/MatchService.Tests.csproj --collect:"XPlat Code Coverage" --results-directory ./TestResults --logger trx --no-restore -- DataCollectionRunSettings.DataCollectors.DataCollector.Configuration.Format=opencover
+        find . -name "coverage.opencover.xml" -exec cp {} . \;
         dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
     
     - name: Debug secrets
