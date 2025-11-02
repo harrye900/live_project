@@ -41,7 +41,56 @@ namespace MatchService.Tests
         }
 
         [Fact]
-        public void GetPotentialMatches_ValidUserId_ReturnsOkResult()
+        public void Swipe_InvalidUserIds_ReturnsBadRequest()
+        {
+            var controller = new MatchController();
+            var request = new SwipeRequest
+            {
+                UserId = 0,
+                TargetUserId = 2,
+                IsLike = true
+            };
+
+            var result = controller.Swipe(request);
+
+            Assert.IsType<BadRequestObjectResult>(result.Result);
+        }
+
+        [Fact]
+        public void Swipe_SameUserIds_ReturnsBadRequest()
+        {
+            var controller = new MatchController();
+            var request = new SwipeRequest
+            {
+                UserId = 1,
+                TargetUserId = 1,
+                IsLike = true
+            };
+
+            var result = controller.Swipe(request);
+
+            Assert.IsType<BadRequestObjectResult>(result.Result);
+        }
+
+        [Fact]
+        public void Swipe_ValidDislike_ReturnsOkResult()
+        {
+            var controller = new MatchController();
+            var request = new SwipeRequest
+            {
+                UserId = 1,
+                TargetUserId = 2,
+                IsLike = false
+            };
+
+            var result = controller.Swipe(request);
+
+            var okResult = Assert.IsType<OkObjectResult>(result.Result);
+            Assert.NotNull(okResult.Value);
+        }
+
+        [Fact]
+        public void GetPotentialMatches_ValidUserId_ReturnsNotFound()
         {
             var controller = new MatchController();
             var userId = 1;
@@ -52,6 +101,17 @@ namespace MatchService.Tests
         }
 
         [Fact]
+        public void GetUserMatches_ValidUserId_ReturnsOkResult()
+        {
+            var controller = new MatchController();
+            var userId = 1;
+
+            var result = controller.GetUserMatches(userId);
+
+            Assert.IsType<OkObjectResult>(result.Result);
+        }
+
+        [Fact]
         public void SyncUsers_ValidUsers_ReturnsOkResult()
         {
             var controller = new MatchController();
@@ -59,6 +119,17 @@ namespace MatchService.Tests
             {
                 new UserProfile { Id = 1, Name = "Test User" }
             };
+
+            var result = controller.SyncUsers(users);
+
+            Assert.IsType<OkResult>(result);
+        }
+
+        [Fact]
+        public void SyncUsers_EmptyList_ReturnsOkResult()
+        {
+            var controller = new MatchController();
+            var users = new List<UserProfile>();
 
             var result = controller.SyncUsers(users);
 
