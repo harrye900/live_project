@@ -1,4 +1,4 @@
-name: Build and Push to Docker Hub
+name: Build Docker Images
 
 on:
   push:
@@ -13,36 +13,30 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: Login to Docker Hub
-      uses: docker/login-action@v3
-      with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
-        password: ${{ secrets.DOCKERHUB_TOKEN }}
-    
-    - name: Build and push UserService
+    - name: Build UserService
       uses: docker/build-push-action@v5
       with:
         context: ./dating-app/backend/UserService
-        push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/dating-userservice:latest
+        push: false
+        tags: dating-userservice:latest
     
-    - name: Build and push PhotoService
+    - name: Build PhotoService
       uses: docker/build-push-action@v5
       with:
         context: ./dating-app/backend/PhotoService
-        push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/dating-photoservice:latest
+        push: false
+        tags: dating-photoservice:latest
     
-    - name: Build and push MatchService
+    - name: Build MatchService
       uses: docker/build-push-action@v5
       with:
         context: ./dating-app/backend/MatchService
-        push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/dating-matchservice:latest
+        push: false
+        tags: dating-matchservice:latest
     
-    - name: Build and push Frontend
+    - name: Build Frontend
       uses: docker/build-push-action@v5
       with:
         context: ./dating-app/frontend/dating-frontend
-        push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/dating-frontend:latest
+        push: false
+        tags: dating-frontend:latest
