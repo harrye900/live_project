@@ -1,0 +1,27 @@
+@UserService_HostAddress = http://localhost:5001
+
+### Create User
+POST {{UserService_HostAddress}}/api/users
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123",
+  "name": "Test User",
+  "age": 25,
+  "bio": "Test bio",
+  "location": "Test City",
+  "gender": "Male",
+  "interestedIn": "Female"
+}
+
+### Login
+POST {{UserService_HostAddress}}/api/users/login
+Content-Type: application/json
+
+{
+  "email": "test@example.com",
+  "password": "password123"
+}
+
+###
