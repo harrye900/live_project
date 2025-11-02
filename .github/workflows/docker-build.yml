@@ -70,6 +70,9 @@ jobs:
     - name: Test Docker login
       run: docker info
     
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
     - name: Build and push UserService
       uses: docker/build-push-action@v5
       with:
