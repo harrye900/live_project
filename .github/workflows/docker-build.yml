@@ -1,4 +1,4 @@
-name: Build Docker Images
+name: Build and Push to Docker Hub
 
 on:
   push:
@@ -13,30 +13,47 @@ jobs:
     steps:
     - uses: actions/checkout@v4
     
-    - name: Build UserService
+    - name: Debug secrets
+      run: |
+        echo "Username length: ${#DOCKERHUB_USERNAME}"
+        echo "Token length: ${#DOCKERHUB_TOKEN}"
+      env:
+        DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+        DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
+    
+    - name: Login to Docker Hub
+      uses: docker/login-action@v3
+      with:
+        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        password: ${{ secrets.DOCKERHUB_TOKEN }}
+    
+    - name: Test Docker login
+      run: docker info
+    
+    - name: Build and push UserService
       uses: docker/build-push-action@v5
       with:
         context: ./dating-app/backend/UserService
-        push: false
-        tags: dating-userservice:latest
+        push: true
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/dating-userservice:latest
     
-    - name: Build PhotoService
+    - name: Build and push PhotoService
       uses: docker/build-push-action@v5
       with:
         context: ./dating-app/backend/PhotoService
-        push: false
-        tags: dating-photoservice:latest
+        push: true
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/dating-photoservice:latest
     
-    - name: Build MatchService
+    - name: Build and push MatchService
       uses: docker/build-push-action@v5
       with:
         context: ./dating-app/backend/MatchService
-        push: false
-        tags: dating-matchservice:latest
+        push: true
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/dating-matchservice:latest
     
-    - name: Build Frontend
+    - name: Build and push Frontend
       uses: docker/build-push-action@v5
       with:
         context: ./dating-app/frontend/dating-frontend
-        push: false
-        tags: dating-frontend:latest
+        push: true
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/dating-frontend:latest
