@@ -30,13 +30,13 @@ namespace PhotoService.Controllers
             if (request.File.Length > 5 * 1024 * 1024) // 5MB limit
                 return BadRequest("File size exceeds 5MB limit.");
 
-            var fileName = $"{Guid.NewGuid()}_{request.File.FileName}";
+            var safeFileName = $"{Guid.NewGuid()}{fileExtension}";
             var uploadsPath = Path.Combine(Directory.GetCurrentDirectory(), "uploads");
             
             if (!Directory.Exists(uploadsPath))
                 Directory.CreateDirectory(uploadsPath);
 
-            var filePath = Path.Combine(uploadsPath, fileName);
+            var filePath = Path.Combine(uploadsPath, safeFileName);
 
             using (var stream = new FileStream(filePath, FileMode.Create))
             {
@@ -47,7 +47,7 @@ namespace PhotoService.Controllers
             {
                 Id = GetNextId(),
                 UserId = request.UserId,
-                Url = $"/uploads/{fileName}",
+                Url = $"/uploads/{safeFileName}",
                 IsMain = request.IsMain ?? false
             };
 
