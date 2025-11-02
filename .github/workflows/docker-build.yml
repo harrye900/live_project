@@ -24,7 +24,6 @@ jobs:
       run: dotnet tool install --global dotnet-sonarscanner
     
     - name: SonarQube Analysis
-      if: ${{ secrets.SONAR_TOKEN != '' && secrets.SONAR_ORGANIZATION != '' }}
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         SONAR_ORGANIZATION: ${{ secrets.SONAR_ORGANIZATION }}
