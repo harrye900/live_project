@@ -6,9 +6,9 @@ builder.Services.AddControllers();
 builder.Services.AddSingleton<MongoDbService>();
 builder.Services.AddCors(options =>
 {
-    options.AddPolicy("AllowAll", policy =>
+    options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.AllowAnyOrigin()
+        policy.WithOrigins("http://localhost:3000")
               .AllowAnyMethod()
               .AllowAnyHeader();
     });
@@ -16,8 +16,8 @@ builder.Services.AddCors(options =>
 
 var app = builder.Build();
 
-app.UseCors("AllowAll");
+app.UseCors("AllowFrontend");
 app.UseRouting();
 app.MapControllers();
 
-app.Run("http://localhost:5001");
+await app.RunAsync();

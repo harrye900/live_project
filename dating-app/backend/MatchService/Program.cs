@@ -17,4 +17,4 @@ app.UseCors("AllowAll");
 app.UseRouting();
 app.MapControllers();
 
-app.Run("http://localhost:5003");
+await app.RunAsync();

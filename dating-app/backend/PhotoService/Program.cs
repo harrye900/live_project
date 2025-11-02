@@ -18,4 +18,4 @@ app.UseStaticFiles();
 app.UseRouting();
 app.MapControllers();
 
-app.Run("http://localhost:5002");
+await app.RunAsync();
