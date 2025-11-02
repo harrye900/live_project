@@ -43,6 +43,7 @@ jobs:
         dotnet test dating-app/backend/PhotoService.Tests/PhotoService.Tests.csproj /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=../../../coverage2.opencover.xml
         dotnet test dating-app/backend/MatchService.Tests/MatchService.Tests.csproj /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput=../../../coverage3.opencover.xml
 
+
         dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
     
     - name: Debug secrets

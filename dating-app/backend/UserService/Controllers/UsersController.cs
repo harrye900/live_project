@@ -12,7 +12,7 @@ namespace UserService.Controllers
             new User { 
                 Id = "1", 
                 Email = "test@test.com", 
-                Password = Environment.GetEnvironmentVariable("DEFAULT_PASSWORD") ?? "defaultpass", 
+                Password = Environment.GetEnvironmentVariable("DEFAULT_PASSWORD") ?? string.Empty, 
                 Name = "Harry", 
                 Age = 25,
                 Bio = "Love hiking and coffee",
