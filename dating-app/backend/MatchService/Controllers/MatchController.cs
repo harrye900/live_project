@@ -39,8 +39,8 @@ namespace MatchService.Controllers
                 _likes[userId].Add(targetUserId);
 
                 // Check if target user also liked this user
-                if (_likes.ContainsKey(targetUserId) && 
-                    _likes[targetUserId].Contains(userId))
+                if (_likes.TryGetValue(targetUserId, out var targetLikes) && 
+                    targetLikes.Contains(userId))
                 {
                     var match = new Match
                     {
@@ -63,7 +63,7 @@ namespace MatchService.Controllers
             if (user == null)
                 return NotFound();
 
-            var alreadyLiked = _likes.ContainsKey(userId) ? _likes[userId] : new List<int>();
+            var alreadyLiked = _likes.TryGetValue(userId, out var userLikes) ? userLikes : new List<int>();
             var matchedUsers = _matches.Where(m => m.UserId1 == userId || m.UserId2 == userId)
                                     .SelectMany(m => new[] { m.UserId1, m.UserId2 })
                                     .Where(id => id != userId);
