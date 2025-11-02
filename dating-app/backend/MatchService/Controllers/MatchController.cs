@@ -65,11 +65,11 @@ namespace MatchService.Controllers
                                     .Where(id => id != userId);
 
             var potentialMatches = _users.Where(u => 
-                u.Id != userId && 
+                u.Id.HasValue && u.Id.Value != userId && 
                 u.Gender == user.InterestedIn &&
                 u.InterestedIn == user.Gender &&
-                !alreadyLiked.Contains(u.Id) &&
-                !matchedUsers.Contains(u.Id)
+                !alreadyLiked.Contains(u.Id.Value) &&
+                !matchedUsers.Contains(u.Id.Value)
             ).Take(10);
 
             return Ok(potentialMatches);
@@ -83,7 +83,7 @@ namespace MatchService.Controllers
                 .Select(m => new
                 {
                     MatchId = m.Id,
-                    MatchedUser = _users.FirstOrDefault(u => u.Id == (m.UserId1 == userId ? m.UserId2 : m.UserId1)),
+                    MatchedUser = _users.FirstOrDefault(u => u.Id.HasValue && u.Id.Value == (m.UserId1 == userId ? m.UserId2 : m.UserId1)),
                     MatchedAt = m.MatchedAt
                 });
 
