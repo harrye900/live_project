@@ -8,7 +8,7 @@ on:
 
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     
     steps:
     - name: Set up JDK 17
@@ -20,38 +20,23 @@ jobs:
       with:
         fetch-depth: 0
     
-    - name: Cache SonarQube Cloud packages
-      uses: actions/cache@v4
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v3
       with:
-        path: ~\sonar\cache
-        key: ${{ runner.os }}-sonar
-        restore-keys: ${{ runner.os }}-sonar
-    
-    - name: Cache SonarQube Cloud scanner
-      id: cache-sonar-scanner
-      uses: actions/cache@v4
-      with:
-        path: ${{ runner.temp }}\scanner
-        key: ${{ runner.os }}-sonar-scanner
-        restore-keys: ${{ runner.os }}-sonar-scanner
+        dotnet-version: '8.0.x'
     
     - name: Install SonarQube Cloud scanner
-      if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
-      shell: powershell
-      run: |
-        New-Item -Path ${{ runner.temp }}\scanner -ItemType Directory
-        dotnet tool update dotnet-sonarscanner --tool-path ${{ runner.temp }}\scanner
+      run: dotnet tool install --global dotnet-sonarscanner
     
     - name: Build and analyze
       env:
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      shell: powershell
       run: |
-        ${{ runner.temp }}\scanner\dotnet-sonarscanner begin /k:"harrye900_live_project" /o:"harrye900" /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+        dotnet sonarscanner begin /k:"harrye900_live_project" /o:"harrye900" /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
         dotnet build dating-app/backend/UserService/UserService.csproj
         dotnet build dating-app/backend/PhotoService/PhotoService.csproj
         dotnet build dating-app/backend/MatchService/MatchService.csproj
-        ${{ runner.temp }}\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+        dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
     
     - name: Debug secrets
       run: |
@@ -69,9 +54,6 @@ jobs:
     
     - name: Test Docker login
       run: docker info
-    
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v3
     
     - name: Build and push UserService
       uses: docker/build-push-action@v5
