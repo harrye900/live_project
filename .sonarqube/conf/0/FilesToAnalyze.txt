@@ -1,0 +1,12 @@
+﻿c:\Users\HARRY\racetrac\live_project\dating-app\backend\UserService\Controllers\UsersController.cs
+c:\Users\HARRY\racetrac\live_project\dating-app\backend\UserService\Models\User.cs
+c:\Users\HARRY\racetrac\live_project\dating-app\backend\UserService\Program.cs
+c:\Users\HARRY\racetrac\live_project\dating-app\backend\UserService\Services\MongoDbService.cs
+c:\Users\HARRY\racetrac\live_project\dating-app\backend\UserService\obj\Debug\net8.0\UserService.GlobalUsings.g.cs
+c:\Users\HARRY\racetrac\live_project\dating-app\backend\UserService\obj\Debug\net8.0\.NETCoreApp,Version=v8.0.AssemblyAttributes.cs
+c:\Users\HARRY\racetrac\live_project\dating-app\backend\UserService\obj\Debug\net8.0\UserService.AssemblyInfo.cs
+c:\Users\HARRY\racetrac\live_project\dating-app\backend\UserService\appsettings.Development.json
+c:\Users\HARRY\racetrac\live_project\dating-app\backend\UserService\appsettings.json
+c:\Users\HARRY\racetrac\live_project\dating-app\backend\UserService\Dockerfile
+c:\Users\HARRY\racetrac\live_project\dating-app\backend\UserService\UserService.http
+c:\Users\HARRY\racetrac\live_project\dating-app\backend\UserService\Properties\launchSettings.json
