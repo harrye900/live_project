@@ -58,28 +58,88 @@ jobs:
     - name: Test Docker login
       run: docker info
     
-    - name: Build and push UserService
+    - name: Build UserService
+      uses: docker/build-push-action@v5
+      with:
+        context: ./dating-app/backend/UserService
+        push: false
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/dating-userservice:latest
+        load: true
+
+    - name: Run Trivy vulnerability scanner - UserService
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/dating-userservice:latest
+        format: 'sarif'
+        output: 'trivy-userservice.sarif'
+
+    - name: Push UserService
       uses: docker/build-push-action@v5
       with:
         context: ./dating-app/backend/UserService
         push: true
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/dating-userservice:latest
     
-    - name: Build and push PhotoService
+    - name: Build PhotoService
+      uses: docker/build-push-action@v5
+      with:
+        context: ./dating-app/backend/PhotoService
+        push: false
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/dating-photoservice:latest
+        load: true
+
+    - name: Run Trivy vulnerability scanner - PhotoService
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/dating-photoservice:latest
+        format: 'sarif'
+        output: 'trivy-photoservice.sarif'
+
+    - name: Push PhotoService
       uses: docker/build-push-action@v5
       with:
         context: ./dating-app/backend/PhotoService
         push: true
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/dating-photoservice:latest
     
-    - name: Build and push MatchService
+    - name: Build MatchService
+      uses: docker/build-push-action@v5
+      with:
+        context: ./dating-app/backend/MatchService
+        push: false
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/dating-matchservice:latest
+        load: true
+
+    - name: Run Trivy vulnerability scanner - MatchService
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/dating-matchservice:latest
+        format: 'sarif'
+        output: 'trivy-matchservice.sarif'
+
+    - name: Push MatchService
       uses: docker/build-push-action@v5
       with:
         context: ./dating-app/backend/MatchService
         push: true
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/dating-matchservice:latest
     
-    - name: Build and push Frontend
+    - name: Build Frontend
+      uses: docker/build-push-action@v5
+      with:
+        context: ./dating-app/frontend/dating-frontend
+        push: false
+        tags: ${{ secrets.DOCKERHUB_USERNAME }}/dating-frontend:latest
+        load: true
+
+    - name: Run Trivy vulnerability scanner - Frontend
+      uses: aquasecurity/trivy-action@master
+      with:
+        image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/dating-frontend:latest
+        format: 'sarif'
+        output: 'trivy-frontend.sarif'
+
+    - name: Push Frontend
       uses: docker/build-push-action@v5
       with:
         context: ./dating-app/frontend/dating-frontend
