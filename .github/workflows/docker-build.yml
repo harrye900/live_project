@@ -120,6 +120,8 @@ jobs:
         image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/dating-matchservice:latest
         format: 'sarif'
         output: 'trivy-matchservice.sarif'
+        severity: 'CRITICAL,HIGH'
+        exit-code: '1'
 
     - name: Push MatchService
       uses: docker/build-push-action@v5
@@ -142,6 +144,8 @@ jobs:
         image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/dating-frontend:latest
         format: 'sarif'
         output: 'trivy-frontend.sarif'
+        severity: 'CRITICAL,HIGH'
+        exit-code: '1'
 
     - name: Push Frontend
       uses: docker/build-push-action@v5
