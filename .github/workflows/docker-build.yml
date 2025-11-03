@@ -154,3 +154,21 @@ jobs:
         context: ./dating-app/frontend/dating-frontend
         push: true
         tags: ${{ secrets.DOCKERHUB_USERNAME }}/dating-frontend:latest
+
+    - name: Upload Trivy scan results
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: trivy-scan-results
+        path: trivy-*.sarif
+        retention-days: 30
+
+    - name: Upload build logs
+      uses: actions/upload-artifact@v3
+      if: always()
+      with:
+        name: build-logs
+        path: |
+          *.log
+          **/*.log
+        retention-days: 7
