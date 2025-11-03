@@ -72,6 +72,8 @@ jobs:
         image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/dating-userservice:latest
         format: 'sarif'
         output: 'trivy-userservice.sarif'
+        severity: 'CRITICAL,HIGH'
+        exit-code: '1'
 
     - name: Push UserService
       uses: docker/build-push-action@v5
@@ -94,6 +96,8 @@ jobs:
         image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/dating-photoservice:latest
         format: 'sarif'
         output: 'trivy-photoservice.sarif'
+        severity: 'CRITICAL,HIGH'
+        exit-code: '1'
 
     - name: Push PhotoService
       uses: docker/build-push-action@v5
