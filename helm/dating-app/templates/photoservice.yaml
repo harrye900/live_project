@@ -26,8 +26,7 @@ spec:
           {{- toYaml .Values.resources | nindent 10 }}
       volumes:
       - name: photo-storage
-        persistentVolumeClaim:
-          claimName: photo-storage-pvc
+        emptyDir: {}
 ---
 apiVersion: v1
 kind: Service
