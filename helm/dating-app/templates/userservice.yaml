@@ -19,6 +19,9 @@ spec:
         imagePullPolicy: {{ .Values.image.pullPolicy }}
         ports:
         - containerPort: {{ .Values.userservice.port }}
+        env:
+        - name: MONGODB_CONNECTION_STRING
+          value: "mongodb://admin:password123@mongodb:27017/datingapp?authSource=admin"
         resources:
           {{- toYaml .Values.resources | nindent 10 }}
 ---

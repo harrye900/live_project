@@ -5,7 +5,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
     {
-        policy.WithOrigins("http://localhost:3000")
+        policy.WithOrigins("http://localhost:3000", "http://a9df033cda67344e9a58c7ef6b9ed3f3-772509191.us-east-1.elb.amazonaws.com")
               .AllowAnyMethod()
               .AllowAnyHeader();
     });

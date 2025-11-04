@@ -40,133 +40,81 @@ jobs:
         dotnet build dating-app/backend/MatchService/MatchService.csproj
         dotnet sonarscanner end /d:sonar.token="$SONAR_TOKEN" || true
     
-    - name: Debug secrets
-      run: |
-        echo "Username length: ${#DOCKERHUB_USERNAME}"
-        echo "Token length: ${#DOCKERHUB_TOKEN}"
-      env:
-        DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
-        DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
-    
     - name: Login to Docker Hub
       uses: docker/login-action@v3
       with:
-        username: ${{ secrets.DOCKERHUB_USERNAME }}
+        username: harifosa
         password: ${{ secrets.DOCKERHUB_TOKEN }}
-    
-    - name: Test Docker login
-      run: docker info
     
     - name: Build UserService
       uses: docker/build-push-action@v5
       with:
         context: ./dating-app/backend/UserService
-        push: false
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/dating-userservice:latest
-        load: true
-
-    - name: Run Trivy vulnerability scanner - UserService
-      uses: aquasecurity/trivy-action@7c2007bcb556501da015201bcba5aa14069b74e2
-      with:
-        image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/dating-userservice:latest
-        format: 'sarif'
-        output: 'trivy-userservice.sarif'
-        severity: 'CRITICAL,HIGH'
-        exit-code: '1'
-
-    - name: Push UserService
-      uses: docker/build-push-action@v5
-      with:
-        context: ./dating-app/backend/UserService
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/dating-userservice:latest
+        tags: harifosa/dating-userservice:latest
     
     - name: Build PhotoService
       uses: docker/build-push-action@v5
       with:
         context: ./dating-app/backend/PhotoService
-        push: false
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/dating-photoservice:latest
-        load: true
-
-    - name: Run Trivy vulnerability scanner - PhotoService
-      uses: aquasecurity/trivy-action@7c2007bcb556501da015201bcba5aa14069b74e2
-      with:
-        image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/dating-photoservice:latest
-        format: 'sarif'
-        output: 'trivy-photoservice.sarif'
-        severity: 'CRITICAL,HIGH'
-        exit-code: '1'
-
-    - name: Push PhotoService
-      uses: docker/build-push-action@v5
-      with:
-        context: ./dating-app/backend/PhotoService
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/dating-photoservice:latest
+        tags: harifosa/dating-photoservice:latest
     
     - name: Build MatchService
       uses: docker/build-push-action@v5
       with:
         context: ./dating-app/backend/MatchService
-        push: false
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/dating-matchservice:latest
-        load: true
-
-    - name: Run Trivy vulnerability scanner - MatchService
-      uses: aquasecurity/trivy-action@7c2007bcb556501da015201bcba5aa14069b74e2
-      with:
-        image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/dating-matchservice:latest
-        format: 'sarif'
-        output: 'trivy-matchservice.sarif'
-        severity: 'CRITICAL,HIGH'
-        exit-code: '1'
-
-    - name: Push MatchService
-      uses: docker/build-push-action@v5
-      with:
-        context: ./dating-app/backend/MatchService
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/dating-matchservice:latest
+        tags: harifosa/dating-matchservice:latest
     
     - name: Build Frontend
       uses: docker/build-push-action@v5
       with:
         context: ./dating-app/frontend/dating-frontend
-        push: false
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/dating-frontend:latest
-        load: true
-
-    - name: Run Trivy vulnerability scanner - Frontend
-      uses: aquasecurity/trivy-action@7c2007bcb556501da015201bcba5aa14069b74e2
-      with:
-        image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/dating-frontend:latest
-        format: 'sarif'
-        output: 'trivy-frontend.sarif'
-        severity: 'CRITICAL,HIGH'
-        exit-code: '1'
-
-    - name: Push Frontend
-      uses: docker/build-push-action@v5
-      with:
-        context: ./dating-app/frontend/dating-frontend
         push: true
-        tags: ${{ secrets.DOCKERHUB_USERNAME }}/dating-frontend:latest
+        tags: harifosa/dating-frontend:latest
 
-    - name: Upload Trivy scan results
-      uses: actions/upload-artifact@v4
-      if: always()
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
       with:
-        name: trivy-scan-results
-        path: trivy-*.sarif
-        retention-days: 30
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: us-east-1
 
-    - name: Upload build logs
-      uses: actions/upload-artifact@v4
-      if: always()
+    - name: Install kubectl
+      uses: azure/setup-kubectl@v3
       with:
-        name: build-logs
-        path: |
-          *.log
-          **/*.log
-        retention-days: 7
+        version: 'v1.28.0'
+
+    - name: Install Helm
+      uses: azure/setup-helm@v3
+      with:
+        version: '3.12.0'
+
+    - name: Configure kubectl for EKS cluster
+      run: |
+        aws eks update-kubeconfig --region us-east-1 --name dating-app-cluster
+        kubectl config current-context
+        kubectl cluster-info
+        kubectl get nodes
+
+    - name: Deploy with Helm
+      run: |
+        echo "Deploying to cluster: dating-app-cluster"
+        helm upgrade --install dating-app helm/dating-app --namespace dating-app --create-namespace --wait --timeout=10m
+        
+    - name: Restart deployments to pull latest images
+      run: |
+        kubectl rollout restart deployment/userservice -n dating-app
+        kubectl rollout restart deployment/photoservice -n dating-app
+        kubectl rollout restart deployment/matchservice -n dating-app
+        kubectl rollout restart deployment/frontend -n dating-app
+        kubectl rollout status deployment/userservice -n dating-app --timeout=300s
+        kubectl rollout status deployment/photoservice -n dating-app --timeout=300s
+        kubectl rollout status deployment/matchservice -n dating-app --timeout=300s
+        kubectl rollout status deployment/frontend -n dating-app --timeout=300s
+
+    - name: Check deployment status
+      run: |
+        kubectl get pods -n dating-app
+        kubectl get svc -n dating-app

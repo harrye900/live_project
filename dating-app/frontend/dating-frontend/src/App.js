@@ -4,7 +4,7 @@ import axios from 'axios';
 import { initializeSampleData } from './sampleData';
 import './App.css';
 
-const API_BASE = 'http://ae6885df810354fb3b66baa5f9ac9faf-576285134.us-east-1.elb.amazonaws.com:8080/api';
+const API_BASE = 'http://ae6885df810354fb3b66baa5f9ac9faf-68163486.us-east-1.elb.amazonaws.com:8080/api';
 
 function App() {
   const [currentUser, setCurrentUser] = useState(null);
@@ -296,7 +296,7 @@ function Dashboard({ user }) {
 
   const fetchPotentialMatches = async () => {
     try {
-      const response = await axios.get(`http://ae6885df810354fb3b66baa5f9ac9faf-576285134.us-east-1.elb.amazonaws.com:8080/api/match/potential/${user.id}`);
+      const response = await axios.get(`http://ae6885df810354fb3b66baa5f9ac9faf-68163486.us-east-1.elb.amazonaws.com:8080/api/match/potential/${user.id}`);
       setPotentialMatches(response.data);
     } catch (error) {
       console.error('Error fetching matches:', error);
@@ -307,7 +307,7 @@ function Dashboard({ user }) {
     if (currentIndex >= potentialMatches.length) return;
 
     try {
-      const response = await axios.post('http://ae6885df810354fb3b66baa5f9ac9faf-576285134.us-east-1.elb.amazonaws.com:8080/api/match/swipe', {
+      const response = await axios.post('http://ae6885df810354fb3b66baa5f9ac9faf-68163486.us-east-1.elb.amazonaws.com:8080/api/match/swipe', {
         userId: user.id,
         targetUserId: potentialMatches[currentIndex].id,
         isLike
@@ -418,7 +418,7 @@ function Profile({ user, setCurrentUser }) {
 
   const fetchPhotos = async () => {
     try {
-      const response = await axios.get(`http://ae6885df810354fb3b66baa5f9ac9faf-576285134.us-east-1.elb.amazonaws.com:8080/api/photos/user/${user.id}`);
+      const response = await axios.get(`http://ae6885df810354fb3b66baa5f9ac9faf-68163486.us-east-1.elb.amazonaws.com:8080/api/photos/user/${user.id}`);
       setPhotos(response.data);
     } catch (error) {
       console.error('Error fetching photos:', error);
@@ -435,7 +435,7 @@ function Profile({ user, setCurrentUser }) {
     formData.append('isMain', photos.length === 0);
 
     try {
-      await axios.post('http://ae6885df810354fb3b66baa5f9ac9faf-576285134.us-east-1.elb.amazonaws.com:8080/api/photos/upload', formData, {
+      await axios.post('http://ae6885df810354fb3b66baa5f9ac9faf-68163486.us-east-1.elb.amazonaws.com:8080/api/photos/upload', formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       fetchPhotos();
@@ -495,7 +495,7 @@ function Matches({ user }) {
 
   const fetchMatches = async () => {
     try {
-      const response = await axios.get(`http://ae6885df810354fb3b66baa5f9ac9faf-576285134.us-east-1.elb.amazonaws.com:8080/api/match/matches/${user.id}`);
+      const response = await axios.get(`http://ae6885df810354fb3b66baa5f9ac9faf-68163486.us-east-1.elb.amazonaws.com:8080/api/match/matches/${user.id}`);
       setMatches(response.data);
     } catch (error) {
       console.error('Error fetching matches:', error);
