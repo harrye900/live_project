@@ -98,9 +98,13 @@ jobs:
         kubectl cluster-info
         kubectl get nodes
 
-    - name: Create namespace
+    - name: Prepare namespace for Helm
       run: |
-        kubectl create namespace dating-app || kubectl get namespace dating-app
+        kubectl delete namespace dating-app --ignore-not-found=true
+        kubectl create namespace dating-app
+        kubectl label namespace dating-app app.kubernetes.io/managed-by=Helm
+        kubectl annotate namespace dating-app meta.helm.sh/release-name=dating-app
+        kubectl annotate namespace dating-app meta.helm.sh/release-namespace=dating-app
         
     - name: Deploy with Helm
       run: |
