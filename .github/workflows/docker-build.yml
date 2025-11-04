@@ -97,6 +97,22 @@ jobs:
         kubectl config current-context
         kubectl cluster-info
         kubectl get nodes
+        
+    - name: Setup EBS CSI driver and storage class
+      run: |
+        kubectl get storageclass
+        aws eks create-addon --cluster-name dating-app-cluster --addon-name aws-ebs-csi-driver --region us-east-1 || echo "EBS CSI driver already exists"
+        kubectl apply -f - <<EOF
+        apiVersion: storage.k8s.io/v1
+        kind: StorageClass
+        metadata:
+          name: gp2
+        provisioner: kubernetes.io/aws-ebs
+        parameters:
+          type: gp2
+          fsType: ext4
+        volumeBindingMode: WaitForFirstConsumer
+        EOF
 
     - name: Prepare namespace for Helm
       run: |
