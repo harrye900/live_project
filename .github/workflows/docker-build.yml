@@ -103,15 +103,215 @@ jobs:
       with:
         terraform_version: 1.5.0
         
-    - name: Deploy Kubernetes resources with Terraform
+    - name: Deploy Kubernetes resources
       run: |
-        cd terraform
-        terraform init
-        terraform import aws_iam_role.eks_cluster eks-cluster-role || true
-        terraform import aws_iam_role.eks_node_group eks-node-group-role || true
-        terraform import aws_eks_cluster.main dating-app-cluster || true
-        terraform import aws_eks_node_group.main dating-app-cluster:main || true
-        terraform apply -auto-approve -target=kubernetes_namespace.dating_app -target=kubernetes_deployment.userservice -target=kubernetes_service.userservice -target=kubernetes_deployment.photoservice -target=kubernetes_service.photoservice -target=kubernetes_deployment.matchservice -target=kubernetes_service.matchservice -target=kubernetes_stateful_set.mongodb -target=kubernetes_service.mongodb -target=kubernetes_deployment.frontend -target=kubernetes_service.frontend
+        kubectl apply -f - <<EOF
+        apiVersion: v1
+        kind: Namespace
+        metadata:
+          name: dating-app
+        ---
+        apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          name: userservice
+          namespace: dating-app
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              app: userservice
+          template:
+            metadata:
+              labels:
+                app: userservice
+            spec:
+              containers:
+              - name: userservice
+                image: harifosa/dating-userservice:latest
+                ports:
+                - containerPort: 8080
+                env:
+                - name: MONGODB_CONNECTION_STRING
+                  value: "mongodb://admin:password123@mongodb:27017/datingapp?authSource=admin"
+        ---
+        apiVersion: v1
+        kind: Service
+        metadata:
+          name: userservice
+          namespace: dating-app
+        spec:
+          selector:
+            app: userservice
+          ports:
+          - port: 8080
+            targetPort: 8080
+          type: ClusterIP
+        ---
+        apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          name: photoservice
+          namespace: dating-app
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              app: photoservice
+          template:
+            metadata:
+              labels:
+                app: photoservice
+            spec:
+              containers:
+              - name: photoservice
+                image: harifosa/dating-photoservice:latest
+                ports:
+                - containerPort: 8080
+                volumeMounts:
+                - name: photo-storage
+                  mountPath: /app/wwwroot
+              volumes:
+              - name: photo-storage
+                emptyDir: {}
+        ---
+        apiVersion: v1
+        kind: Service
+        metadata:
+          name: photoservice
+          namespace: dating-app
+        spec:
+          selector:
+            app: photoservice
+          ports:
+          - port: 8080
+            targetPort: 8080
+          type: ClusterIP
+        ---
+        apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          name: matchservice
+          namespace: dating-app
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              app: matchservice
+          template:
+            metadata:
+              labels:
+                app: matchservice
+            spec:
+              containers:
+              - name: matchservice
+                image: harifosa/dating-matchservice:latest
+                ports:
+                - containerPort: 8080
+        ---
+        apiVersion: v1
+        kind: Service
+        metadata:
+          name: matchservice
+          namespace: dating-app
+        spec:
+          selector:
+            app: matchservice
+          ports:
+          - port: 8080
+            targetPort: 8080
+          type: ClusterIP
+        ---
+        apiVersion: apps/v1
+        kind: StatefulSet
+        metadata:
+          name: mongodb
+          namespace: dating-app
+        spec:
+          serviceName: mongodb
+          replicas: 1
+          selector:
+            matchLabels:
+              app: mongodb
+          template:
+            metadata:
+              labels:
+                app: mongodb
+            spec:
+              containers:
+              - name: mongodb
+                image: mongo:7.0
+                ports:
+                - containerPort: 27017
+                env:
+                - name: MONGO_INITDB_ROOT_USERNAME
+                  value: "admin"
+                - name: MONGO_INITDB_ROOT_PASSWORD
+                  value: "password123"
+                volumeMounts:
+                - name: mongodb-data
+                  mountPath: /data/db
+                resources:
+                  requests:
+                    memory: "256Mi"
+                    cpu: "200m"
+                  limits:
+                    memory: "512Mi"
+                    cpu: "500m"
+              volumes:
+              - name: mongodb-data
+                emptyDir: {}
+        ---
+        apiVersion: v1
+        kind: Service
+        metadata:
+          name: mongodb
+          namespace: dating-app
+        spec:
+          selector:
+            app: mongodb
+          ports:
+          - port: 27017
+            targetPort: 27017
+          type: ClusterIP
+        ---
+        apiVersion: apps/v1
+        kind: Deployment
+        metadata:
+          name: frontend
+          namespace: dating-app
+        spec:
+          replicas: 1
+          selector:
+            matchLabels:
+              app: frontend
+          template:
+            metadata:
+              labels:
+                app: frontend
+            spec:
+              containers:
+              - name: frontend
+                image: harifosa/dating-frontend:latest
+                ports:
+                - containerPort: 3000
+                env:
+                - name: REACT_APP_API_BASE_URL
+                  value: "http://a9df033cda67344e9a58c7ef6b9ed3f3-772509191.us-east-1.elb.amazonaws.com"
+        ---
+        apiVersion: v1
+        kind: Service
+        metadata:
+          name: frontend
+          namespace: dating-app
+        spec:
+          selector:
+            app: frontend
+          ports:
+          - port: 80
+            targetPort: 3000
+          type: LoadBalancer
+        EOF
         
     - name: Restart deployments to pull latest images
       run: |
