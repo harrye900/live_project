@@ -1,0 +1,36 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.matchservice.name }}
+  namespace: dating-app
+spec:
+  replicas: {{ .Values.matchservice.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.matchservice.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.matchservice.name }}
+    spec:
+      containers:
+      - name: {{ .Values.matchservice.name }}
+        image: {{ .Values.image.repository }}/dating-{{ .Values.matchservice.name }}:{{ .Values.image.tag }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.matchservice.port }}
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.matchservice.name }}
+  namespace: dating-app
+spec:
+  selector:
+    app: {{ .Values.matchservice.name }}
+  ports:
+  - port: {{ .Values.matchservice.port }}
+    targetPort: {{ .Values.matchservice.port }}
+  type: ClusterIP

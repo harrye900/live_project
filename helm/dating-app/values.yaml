@@ -1,0 +1,32 @@
+image:
+  repository: harifosa
+  tag: latest
+  pullPolicy: Always
+
+userservice:
+  name: userservice
+  port: 8080
+  replicas: 2
+
+photoservice:
+  name: photoservice
+  port: 8080
+  replicas: 2
+
+matchservice:
+  name: matchservice
+  port: 8080
+  replicas: 2
+
+frontend:
+  name: frontend
+  port: 3000
+  replicas: 2
+
+resources:
+  requests:
+    memory: "128Mi"
+    cpu: "100m"
+  limits:
+    memory: "256Mi"
+    cpu: "200m"

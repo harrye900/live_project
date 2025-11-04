@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.photoservice.name }}
+  namespace: dating-app
+spec:
+  replicas: {{ .Values.photoservice.replicas }}
+  selector:
+    matchLabels:
+      app: {{ .Values.photoservice.name }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.photoservice.name }}
+    spec:
+      containers:
+      - name: {{ .Values.photoservice.name }}
+        image: {{ .Values.image.repository }}/dating-{{ .Values.photoservice.name }}:{{ .Values.image.tag }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        ports:
+        - containerPort: {{ .Values.photoservice.port }}
+        volumeMounts:
+        - name: photo-storage
+          mountPath: /app/wwwroot
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
+      volumes:
+      - name: photo-storage
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.photoservice.name }}
+  namespace: dating-app
+spec:
+  selector:
+    app: {{ .Values.photoservice.name }}
+  ports:
+  - port: {{ .Values.photoservice.port }}
+    targetPort: {{ .Values.photoservice.port }}
+  type: ClusterIP
