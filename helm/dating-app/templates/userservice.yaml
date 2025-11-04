@@ -36,4 +36,4 @@ spec:
   ports:
   - port: {{ .Values.userservice.port }}
     targetPort: {{ .Values.userservice.port }}
-  type: LoadBalancer
+  type: ClusterIP
