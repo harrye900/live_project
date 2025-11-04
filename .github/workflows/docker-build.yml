@@ -98,17 +98,14 @@ jobs:
         kubectl cluster-info
         kubectl get nodes
 
-    - name: Clean up existing resources
+    - name: Create namespace
       run: |
-        helm uninstall dating-app -n dating-app --ignore-not-found || true
-        kubectl delete namespace dating-app --ignore-not-found=true --force --grace-period=0
-        sleep 30
-        kubectl get namespace dating-app || echo "Namespace deleted successfully"
+        kubectl create namespace dating-app || kubectl get namespace dating-app
         
     - name: Deploy with Helm
       run: |
         echo "Deploying to cluster: dating-app-cluster"
-        helm upgrade --install dating-app helm/dating-app --namespace dating-app --create-namespace --wait --timeout=10m
+        helm upgrade --install dating-app helm/dating-app --namespace dating-app --wait --timeout=10m
         
     - name: Restart deployments to pull latest images
       run: |
