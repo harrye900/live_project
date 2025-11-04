@@ -109,7 +109,14 @@ jobs:
     - name: Deploy with Helm
       run: |
         echo "Deploying to cluster: dating-app-cluster"
-        helm upgrade --install dating-app helm/dating-app --namespace dating-app --wait --timeout=10m
+        helm upgrade --install dating-app helm/dating-app --namespace dating-app --wait --timeout=20m --debug
+        
+    - name: Debug deployment issues
+      if: failure()
+      run: |
+        kubectl get pods -n dating-app
+        kubectl describe pods -n dating-app
+        kubectl get events -n dating-app --sort-by='.lastTimestamp'
         
     - name: Restart deployments to pull latest images
       run: |
