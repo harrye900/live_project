@@ -100,8 +100,10 @@ jobs:
 
     - name: Clean up existing resources
       run: |
-        kubectl delete namespace dating-app --ignore-not-found=true
-        kubectl wait --for=delete namespace/dating-app --timeout=60s || true
+        helm uninstall dating-app -n dating-app --ignore-not-found || true
+        kubectl delete namespace dating-app --ignore-not-found=true --force --grace-period=0
+        sleep 30
+        kubectl get namespace dating-app || echo "Namespace deleted successfully"
         
     - name: Deploy with Helm
       run: |
