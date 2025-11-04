@@ -98,6 +98,11 @@ jobs:
         kubectl cluster-info
         kubectl get nodes
 
+    - name: Clean up existing resources
+      run: |
+        kubectl delete namespace dating-app --ignore-not-found=true
+        kubectl wait --for=delete namespace/dating-app --timeout=60s || true
+        
     - name: Deploy with Helm
       run: |
         echo "Deploying to cluster: dating-app-cluster"
