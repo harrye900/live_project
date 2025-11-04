@@ -103,12 +103,15 @@ jobs:
       with:
         terraform_version: 1.5.0
         
-    - name: Deploy with Terraform
+    - name: Deploy Kubernetes resources with Terraform
       run: |
         cd terraform
         terraform init
-        terraform plan
-        terraform apply -auto-approve
+        terraform import aws_iam_role.eks_cluster eks-cluster-role || true
+        terraform import aws_iam_role.eks_node_group eks-node-group-role || true
+        terraform import aws_eks_cluster.main dating-app-cluster || true
+        terraform import aws_eks_node_group.main dating-app-cluster:main || true
+        terraform apply -auto-approve -target=kubernetes_namespace.dating_app -target=kubernetes_deployment.userservice -target=kubernetes_service.userservice -target=kubernetes_deployment.photoservice -target=kubernetes_service.photoservice -target=kubernetes_deployment.matchservice -target=kubernetes_service.matchservice -target=kubernetes_stateful_set.mongodb -target=kubernetes_service.mongodb -target=kubernetes_deployment.frontend -target=kubernetes_service.frontend
         
     - name: Restart deployments to pull latest images
       run: |
